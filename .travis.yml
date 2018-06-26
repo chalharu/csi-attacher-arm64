@@ -1,0 +1,33 @@
+language: generic
+sudo: true
+
+os:
+- linux
+
+before_script:
+- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+- sudo apt-get -yq update
+- sudo apt-get -yq install qemu-user-static binfmt-support docker-ce
+- sudo docker login -u mitsu1986 -p ${DOCKERHUB_PASS}
+
+script:
+- sudo docker build -t mitsu1986/csi-attacher-arm64 .
+
+after_success:
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
+     [ "${TRAVIS_BRANCH}" = "master" ] &&
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ] &&
+     [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
+    sudo docker push mitsu1986/csi-attacher-arm64
+  fi
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+env:
+  global:
+    secure: GsRY0kLqNWRIbBeHGfxXeJfkjjSyLgTCfDXANnh0uoI34oES4OkpHYfQgmvNnylx3zCQsRcVcF6g/nQFKePMz8Pda8ZCpgnV9HyRMwf99wrGTROXmqWVh3npVyhMuvDT9At7AJnua6zB8q+z1cO8L2tOFEa5jwwhdjIz0fppH43hylBD0TRnfoo4tiVtR+/A+wyD4NVDg+KW97AShyTBAuGx7TDs8ZQ8kYYbm05yQ5uKy1/2hePnNCL2mCkLmI2P1gpjHAeO2jDDsdfgLXXBnFcQpdjIzMsek6TARHIPKq4m7N6HquRWETF9vo/4sk028I2KpHxZvEF2eArolLcUL8mZsNeSnVh3JGPVb0R/DnjuOR7uc0uCcZGC8PjivfHTPsWBJpoZzkjiwQOy9LwL3byMtpaKXZDI2V9afTMbzzrn71nJEgISRWIcsji6SR1wOMThezz2r+ChOWG0uOkORlKEDTEXk2Ivpd80ymGKTR2D/t08HHg5JhOUg2ZgjXYvTqW06zUa8ksezx56F1Mxhtl0cfj9+bbbj3zOeDgvoNNEuHHixRRDK8ssmPveXRA3lZtt1LsSN4FL5RXNHSNjW1w/e+kwmv9OGkw5Z82OiLOtEA2YUcBYHIqXhXQvubIsiKVOHpVNdSB7c30m4LXfZHZ75Ny1ycv84gpLp3b/AlM=
