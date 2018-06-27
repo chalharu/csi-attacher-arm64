@@ -14,6 +14,7 @@ RUN apt-get -yq install gcc-aarch64-linux-gnu git make gcc bc device-tree-compil
 RUN apt-get -yq clean
 RUN go get -d github.com/kubernetes-csi/external-attacher || true
 RUN cd /root/go/src/github.com/kubernetes-csi/external-attacher && \
+    git checkout refs/tags/v0.3.0 && \
     REV=$(git describe --long --match='v*' --dirty) && \
     mkdir -p bin && \
     CGO_ENABLED=0 go build -a -ldflags "-X main.version=$REV -extldflags '-static'" -o ./bin/csi-attacher ./cmd/csi-attacher
